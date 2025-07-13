@@ -12,8 +12,12 @@
     "@tanstack/react-router": "^1.127.3",
     "@tanstack/react-router-devtools": "^1.127.3",
     "@tanstack/react-start": "^1.127.6",
+    "graphology": "^0.26.0",
+    "graphology-layout": "^0.6.1",
+    "graphology-layout-force": "^0.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "sigma": "^3.0.2",
     "tailwind-merge": "^2.6.0",
     "zod": "^3.24.2"
   },
