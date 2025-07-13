@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Sigma from "sigma";
+import { EdgeArrowProgram } from "sigma/rendering";
+import {
+  DEFAULT_EDGE_CURVATURE,
+  EdgeCurvedArrowProgram,
+  indexParallelEdgesIndex,
+} from "@sigma/edge-curve";
 import Graph from "graphology";
 import ForceSupervisor from "graphology-layout-force/worker";
 import { NetworkData } from "../types/goldpinger";
@@ -63,15 +69,65 @@ export function useSigmaGraph(
 
     const layout = new ForceSupervisor(graph, {
       isNodeFixed: (_, attr) => attr.highlighted,
+      settings: {
+        gravity: 0.2,
+        repulsion: 0.3,
+      },
     });
     layout.start();
     layoutRef.current = layout;
 
+    indexParallelEdgesIndex(graph, {
+      edgeIndexAttribute: "parallelIndex",
+      edgeMinIndexAttribute: "parallelMinIndex",
+      edgeMaxIndexAttribute: "parallelMaxIndex",
+    });
+
+    graph.forEachEdge(
+      (
+        edge,
+        {
+          parallelIndex,
+          parallelMinIndex,
+          parallelMaxIndex,
+        }:
+          | {
+              parallelIndex: number;
+              parallelMinIndex?: number;
+              parallelMaxIndex: number;
+            }
+          | {
+              parallelIndex?: null;
+              parallelMinIndex?: null;
+              parallelMaxIndex?: null;
+            }
+      ) => {
+        if (typeof parallelMinIndex === "number") {
+          graph.mergeEdgeAttributes(edge, {
+            type: parallelIndex ? "curved" : "straight",
+            curvature: getCurvature(parallelIndex, parallelMaxIndex),
+          });
+        } else if (typeof parallelIndex === "number") {
+          graph.mergeEdgeAttributes(edge, {
+            type: "curved",
+            curvature: getCurvature(parallelIndex, parallelMaxIndex),
+          });
+        } else {
+          graph.setEdgeAttribute(edge, "type", "straight");
+        }
+      }
+    );
+
     // Create Sigma instance
     const sigma = new Sigma(graph, containerRef.current, {
+      allowInvalidContainer: true,
       renderEdgeLabels: true,
       minCameraRatio: 0.5,
       maxCameraRatio: 2,
+      edgeProgramClasses: {
+        straight: EdgeArrowProgram,
+        curved: EdgeCurvedArrowProgram,
+      },
     });
 
     sigmaRef.current = sigma;
@@ -105,13 +161,7 @@ export function useSigmaGraph(
       }
       sigma.kill();
     };
-  }, [
-    // containerRef,
-    networkData,
-    // options.onNodeClick,
-    // options.onEdgeClick,
-    // options.onStageClick,
-  ]);
+  }, [networkData]);
 
   // Set up drag functionality
   useEffect(() => {
@@ -173,6 +223,7 @@ export function useSigmaGraph(
 
   // Handle node highlighting
   useEffect(() => {
+    console.log("Highlighting node:", highlightedNode);
     if (!sigmaRef.current || !graphRef.current) return;
 
     const graph = graphRef.current;
@@ -194,7 +245,8 @@ export function useSigmaGraph(
             attributes.originalColor || attributes.color
           );
         } else {
-          graph.setEdgeAttribute(edge, "color", "#f0f0f0");
+          // Dim other edges
+          graph.setEdgeAttribute(edge, "color", "#f5f5f5");
         }
       });
     } else {
@@ -224,4 +276,13 @@ export function useSigmaGraph(
     refresh,
     resetHighlight,
   };
+}
+
+function getCurvature(index: number, maxIndex: number): number {
+  if (maxIndex <= 0) throw new Error("Invalid maxIndex");
+  if (index < 0) return -getCurvature(-index, maxIndex);
+  const amplitude = 3.5;
+  const maxCurvature =
+    amplitude * (1 - Math.exp(-maxIndex / amplitude)) * DEFAULT_EDGE_CURVATURE;
+  return (maxCurvature * index) / maxIndex;
 }

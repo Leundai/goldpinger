@@ -7,6 +7,7 @@ export interface Host {
 export interface ProbeResult {
   protocol: string;
   "response-time-ms": number;
+  OK?: boolean;
   error?: string;
 }
 
