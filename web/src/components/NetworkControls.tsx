@@ -1,5 +1,5 @@
 interface NetworkControlsProps {
-  onReload: () => void
+  onReload: () => void;
 }
 
 export default function NetworkControls({ onReload }: NetworkControlsProps) {
@@ -12,11 +12,11 @@ export default function NetworkControls({ onReload }: NetworkControlsProps) {
         >
           Reload
         </button>
-        
+
         <div className="text-sm text-gray-600">
           Click nodes/edges for details
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -3,12 +3,13 @@ import { useNetworkData } from '../hooks/useNetworkData'
 import { useSigmaGraph } from '../hooks/useSigmaGraph'
 import NodeDetailsSidebar from './NodeDetailsSidebar'
 import NetworkControls from './NetworkControls'
+import { NetworkNode, NetworkLink} from '~/types/goldpinger'
 
 export default function NetworkGraph() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { data: networkData, loading, error, reload } = useNetworkData()
-  const [selectedNodeData, setSelectedNodeData] = useState<any>(null)
-  const [selectedEdgeData, setSelectedEdgeData] = useState<any>(null)
+  const [selectedNodeData, setSelectedNodeData] = useState<NetworkNode | null>(null)
+  const [selectedEdgeData, setSelectedEdgeData] = useState<NetworkLink | null>(null)
   const [showSidebar, setShowSidebar] = useState(false)
 
   const { refresh, resetHighlight } = useSigmaGraph(containerRef, networkData, {
@@ -26,17 +27,6 @@ export default function NetworkGraph() {
       resetHighlight()
     }
   })
-
-  const handleReload = () => {
-    reload()
-    resetHighlight()
-  }
-
-  const handleCloseSidebar = () => {
-    setShowSidebar(false)
-    setSelectedNodeData(null)
-    setSelectedEdgeData(null)
-  }
 
   if (loading) {
     return (
@@ -63,26 +53,18 @@ export default function NetworkGraph() {
   }
 
   return (
-    <div className="relative w-full h-full">
-      <NetworkControls onReload={handleReload} />
-      
+    <div className="flex w-full h-full">
       <div
         ref={containerRef}
-        className={`w-full h-full bg-white transition-all duration-300 ${
-          showSidebar ? 'mr-96' : ''
-        }`}
-        style={{ cursor: 'default' }}
-      />
-
+        className={`w-3/4 h-full bg-white`}
+      >
+        </div>
       <NodeDetailsSidebar
-        isOpen={showSidebar}
-        onClose={handleCloseSidebar}
         nodeData={selectedNodeData}
         edgeData={selectedEdgeData}
       />
-      
-      <div className="absolute bottom-4 left-4 bg-white/90 p-3 rounded-lg shadow-md text-sm">
-        <div className="font-semibold mb-2">Legend</div>
+      <div className="absolute bottom-6 left-4 bg-white/90 p-3 rounded-lg shadow-md text-sm">
+          <div className="font-semibold mb-2">Legend</div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500"></div>

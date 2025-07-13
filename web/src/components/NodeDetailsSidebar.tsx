@@ -1,117 +1,245 @@
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Separator } from "~/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import { Copy, Network, Server } from "lucide-react";
+import { NetworkLink, NetworkNode } from "~/types/goldpinger";
+
 interface NodeDetailsSidebarProps {
-  isOpen: boolean
-  onClose: () => void
-  nodeData?: any
-  edgeData?: any
+  nodeData: NetworkNode | null;
+  edgeData: NetworkLink | null;
 }
 
 export default function NodeDetailsSidebar({
-  isOpen,
-  onClose,
   nodeData,
-  edgeData
+  edgeData,
 }: NodeDetailsSidebarProps) {
-  if (!isOpen) return null
+  const data = nodeData || edgeData;
 
-  const data = nodeData || edgeData
-  const title = nodeData ? nodeData.id : edgeData?.id || 'Details'
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
 
-  return (
-    <div className={`fixed top-0 right-0 h-full w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-40 ${
-      isOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}>
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-          <h2 className="text-xl font-semibold">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 hover:bg-gray-200 rounded"
-          >
-            ×
-          </button>
-        </div>
-        
-        <div className="flex-1 p-4 overflow-auto">
-          <div className="space-y-4">
-            {nodeData && (
-              <div>
-                <h3 className="font-semibold text-gray-700 mb-2">Node Information</h3>
-                <div className="space-y-2">
-                  <div>
-                    <span className="font-medium text-gray-600">ID:</span>
-                    <span className="ml-2">{nodeData.id}</span>
-                  </div>
-                  {nodeData.hostIP && (
-                    <div>
-                      <span className="font-medium text-gray-600">Host IP:</span>
-                      <span className="ml-2">{nodeData.hostIP}</span>
-                    </div>
-                  )}
-                  {nodeData.podIP && (
-                    <div>
-                      <span className="font-medium text-gray-600">Pod IP:</span>
-                      <span className="ml-2">{nodeData.podIP}</span>
-                    </div>
-                  )}
-                  {nodeData.status && (
-                    <div>
-                      <span className="font-medium text-gray-600">Status:</span>
-                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                        nodeData.status === 'healthy' 
-                          ? 'bg-green-100 text-green-800' 
-                          : nodeData.status === 'unhealthy'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {nodeData.status}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "healthy":
+        return "default";
+      case "unhealthy":
+        return "destructive";
+      default:
+        return "secondary";
+    }
+  };
 
-            {edgeData && (
-              <div>
-                <h3 className="font-semibold text-gray-700 mb-2">Connection Information</h3>
-                <div className="space-y-2">
-                  <div>
-                    <span className="font-medium text-gray-600">Connection ID:</span>
-                    <span className="ml-2">{edgeData.id}</span>
-                  </div>
-                  {edgeData.latency && (
-                    <div>
-                      <span className="font-medium text-gray-600">Latency:</span>
-                      <span className="ml-2">{edgeData.latency}ms</span>
-                    </div>
-                  )}
-                  {edgeData.status && (
-                    <div>
-                      <span className="font-medium text-gray-600">Status:</span>
-                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                        edgeData.status === 'healthy' 
-                          ? 'bg-green-100 text-green-800' 
-                          : edgeData.status === 'unhealthy'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {edgeData.status}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Raw Data</h3>
-              <pre className="whitespace-pre-wrap text-xs bg-gray-50 p-3 rounded border overflow-auto">
-                {JSON.stringify(data, null, 2)}
-              </pre>
-            </div>
+  if (data === null) {
+    return (
+      <div className="h-full border-l bg-background w-1/4">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center text-muted-foreground">
+            <Network className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p className="text-sm">Select a node or edge to see details</p>
           </div>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="h-full border-l bg-background w-1/4">
+      <TooltipProvider>
+        <ScrollArea className="h-full">
+          <div className="p-4 space-y-4">
+            {nodeData && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Server className="w-5 h-5" />
+                    Node Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        ID:
+                      </span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm font-mono truncate">
+                          {nodeData.id}
+                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => copyToClipboard(nodeData.id)}
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy ID</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Host IP:
+                      </span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm font-mono truncate">
+                          {nodeData.hostIP}
+                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() =>
+                                copyToClipboard(nodeData.hostIP || "")
+                              }
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy Host IP</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Pod IP:
+                      </span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm font-mono truncate">
+                          {nodeData.podIP}
+                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() =>
+                                copyToClipboard(nodeData.podIP || "")
+                              }
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy Pod IP</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    {nodeData.status && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          Status:
+                        </span>
+                        <Badge variant={getStatusVariant(nodeData.status)}>
+                          {nodeData.status}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* {edgeData && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Activity className="w-5 h-5" />
+                    Connection Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Connection ID:
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-mono">{edgeData.id}</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => copyToClipboard(edgeData.id)}
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy Connection ID</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    {edgeData.latency && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          Latency:
+                        </span>
+                        <span className="text-sm font-mono">
+                          {edgeData.latency}ms
+                        </span>
+                      </div>
+                    )}
+
+                    {edgeData.status && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          Status:
+                        </span>
+                        <Badge variant={getStatusVariant(edgeData.status)}>
+                          {edgeData.status}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )} */}
+
+            <Separator />
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Raw Data</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 w-full border rounded-md bg-muted overflow-auto max-w-80">
+                  <pre className="text-xs font-mono p-3 whitespace-pre min-w-0">
+                    {JSON.stringify(data, null, 2)}
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </ScrollArea>
+      </TooltipProvider>
     </div>
-  )
+  );
 }

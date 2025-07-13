@@ -152,7 +152,7 @@ export function transformToSigmaData(networkData: NetworkData): {
       size: isExternal ? 8 : 12, // External nodes slightly smaller
       color: getNodeColor(node.status),
       type: "circle",
-      data: { ...node.data, originalType: node.type },
+      data: { ...node },
     });
   });
 
@@ -167,7 +167,7 @@ export function transformToSigmaData(networkData: NetworkData): {
       type: "arrow",
       size: 3,
       label: link.latency > 0 ? `${link.latency}ms` : undefined,
-      data: link.data,
+      data: { ...link },
     });
   });
 

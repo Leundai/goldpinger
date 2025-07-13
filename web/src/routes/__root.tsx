@@ -9,8 +9,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { NotFound } from '~/components/NotFound'
-import appCss from '~/styles/app.css?url'
-import { seo } from '~/utils/seo'
+import globalsCss from '~/styles/globals.css?url'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -22,14 +21,9 @@ export const Route = createRootRoute({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
-      ...seo({
-        title:
-          'TanStack Start | Type-Safe, Client-First, Full-Stack React Framework',
-        description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
-      }),
     ],
     links: [
-      { rel: 'stylesheet', href: appCss },
+      { rel: 'stylesheet', href: globalsCss },
       {
         rel: 'apple-touch-icon',
         sizes: '180x180',
@@ -80,46 +74,43 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             Home
           </Link>{' '}
           <Link
-            to="/posts"
+            to="/graph"
             activeProps={{
               className: 'font-bold',
             }}
           >
-            Posts
+            Graph
           </Link>{' '}
           <Link
-            to="/users"
+            to="/redirect"
             activeProps={{
               className: 'font-bold',
             }}
+            className='text-gray-300'
+            disabled={true}
           >
-            Users
+            Heatmap
           </Link>{' '}
           <Link
-            to="/route-a"
+            to="/redirect"
             activeProps={{
               className: 'font-bold',
             }}
+            className='text-gray-300'
+            disabled={true}
           >
-            Pathless Layout
+            Metrics
           </Link>{' '}
           <Link
-            to="/deferred"
+            to="/redirect"
             activeProps={{
               className: 'font-bold',
             }}
+            className='text-gray-300'
+            disabled={true}
           >
-            Deferred
+            Data
           </Link>{' '}
-          <Link
-            // @ts-expect-error
-            to="/this-route-does-not-exist"
-            activeProps={{
-              className: 'font-bold',
-            }}
-          >
-            This Route Does Not Exist
-          </Link>
         </div>
         <hr />
         {children}
