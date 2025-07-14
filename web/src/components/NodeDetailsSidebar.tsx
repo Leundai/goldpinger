@@ -40,7 +40,7 @@ export default function NodeDetailsSidebar({
 
   if (data === null) {
     return (
-      <div className="h-full border-l bg-background w-1/4">
+      <div className="h-full border-l bg-background grow max-w-xs">
         <div className="flex items-center justify-center h-full">
           <div className="text-center text-muted-foreground">
             <Network className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -52,10 +52,10 @@ export default function NodeDetailsSidebar({
   }
 
   return (
-    <div className="h-full border-l bg-background w-1/4">
+    <div className="h-full border-l bg-background grow max-w-xs">
       <TooltipProvider>
         <ScrollArea className="h-full">
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4 flex flex-col max-w-xs">
             {nodeData && (
               <Card>
                 <CardHeader className="pb-3">
@@ -227,7 +227,26 @@ export default function NodeDetailsSidebar({
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Raw Data</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span>Raw Data</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() =>
+                          copyToClipboard(JSON.stringify(data, null, 2))
+                        }
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Copy Raw Data</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-64 w-full border rounded-md bg-muted overflow-auto max-w-80">

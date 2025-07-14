@@ -6,9 +6,5 @@ export const Route = createFileRoute("/graph")({
 });
 
 function GraphPage() {
-  return (
-    <div className="h-[calc(100vh-80px)]">
-      <NetworkGraph />
-    </div>
-  );
+  return <NetworkGraph />;
 }

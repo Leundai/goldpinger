@@ -70,8 +70,8 @@ export function useSigmaGraph(
     const layout = new ForceSupervisor(graph, {
       isNodeFixed: (_, attr) => attr.highlighted,
       settings: {
-        gravity: 0.2,
-        repulsion: 0.3,
+        gravity: 0.06,
+        repulsion: 0.06,
       },
     });
     layout.start();

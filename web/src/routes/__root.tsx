@@ -62,7 +62,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className='flex flex-col h-full'>
         <div className="p-2 flex gap-2 text-lg">
           <Link
             to="/"

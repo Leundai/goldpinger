@@ -53,10 +53,10 @@ export default function NetworkGraph() {
   }
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex grow">
       <div
         ref={containerRef}
-        className={`w-3/4 h-full bg-white`}
+        className={`h-full grow-[8] bg-white`}
       >
         </div>
       <NodeDetailsSidebar
